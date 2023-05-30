@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'Screen/Participant/SplashScreen.dart';
-// import 'Screen/Login/LoginPage.dart';
-import 'Screen/Participant/Navigator.dart';
+import 'Screen/Login/LoginAndri.dart';
+// import 'Screen/Participant/PageProgres.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'firebase_options.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -21,7 +29,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),
-        '/home': (context) => Nyoba(),
+        '/home': (context) => LoginPage(),
       },
     );
   }

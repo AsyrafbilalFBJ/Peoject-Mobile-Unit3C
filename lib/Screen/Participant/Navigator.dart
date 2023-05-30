@@ -6,20 +6,30 @@ import '../Participant/PageProgres.dart';
 import '../Participant/ProfilePage.dart';
 
 class Nyoba extends StatefulWidget {
+  final String? name;
+  final String? uid;
+
+  const Nyoba({this.name, this.uid});
+
   @override
   _NyobaState createState() => _NyobaState();
 }
 
 class _NyobaState extends State<Nyoba> {
   int _selectedIndex = 0;
+  late final List<Widget> _widgetOptions;
 
-  static List<Widget> _widgetOptions = <Widget>[
-    Homepage(),
-    CategoryPage(),
-    ChartPage(),
-    Progres(),
-    Profile(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _widgetOptions = <Widget>[
+      Homepage(name: widget.name, uid: widget.uid),
+      CategoryPage(),
+      ChartPage(),
+      Progres(name: widget.name, uid: widget.uid),
+      Profile(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {

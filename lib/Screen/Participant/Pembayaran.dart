@@ -3,61 +3,84 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'PagesClass.dart';
-import 'ChartPage.dart';
 // import 'PageOtp.dart/';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 class Paid extends StatefulWidget {
-  const Paid({Key? key}) : super(key: key);
+  final dynamic dataKelas;
+  final dynamic user_id;
+
+  const Paid({required this.dataKelas, required this.user_id});
+  // const Paid({Key? key}) : super(key: key);
 
   @override
   _HomepageState createState() => _HomepageState();
 }
 
 class _HomepageState extends State<Paid> {
-  double _rating = 3.0;
+  final DatabaseReference _database = FirebaseDatabase.instance.ref('classes');
+  final DatabaseReference _databaseTransaction =
+      FirebaseDatabase.instance.ref('Transaction');
+  List<String> _items = [];
 
-  List<Map<String, String>> containerContents = [
-    {
-      'title': 'Certificate 1',
-      'description':
-          'Earn an industry standard certificate upon completion of this class 1.',
-      'imagePath': 'assets/Gcerti.png',
-    },
-    {
-      'title': 'Certificate 2',
-      'description':
-          'Earn an industry standard certificate upon completion of this class 2.',
-      'imagePath': 'assets/Right.png',
-    },
-    {
-      'title': 'Certificate 3',
-      'description':
-          'Earn an industry standard certificate upon completion of this class 3.',
-      'imagePath': 'assets/Left.png',
-    },
-  ];
-  List<Map<String, String>> containerContents2 = [
-    {
-      'title': 'Certificate 1',
-      'description':
-          'Earn an industry standard certificate upon completion of this class 1.',
-      'imagePath': 'assets/Gcerti.png',
-    },
-    {
-      'title': 'Certificate 2',
-      'description':
-          'Earn an industry standard certificate upon completion of this class 2.',
-      'imagePath': 'assets/certiCode.png',
-    },
-    {
-      'title': 'Certificate 3',
-      'description':
-          'Earn an industry standard certificate upon completion of this class 3.',
-      'imagePath': 'assets/Left.png',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _database.onChildAdded.listen((event) {
+      setState(() {
+        _items.add(event.snapshot.value.toString());
+      });
+    });
+  }
+
+  // double _rating = 3.0;
+
+  // List<Map<String, String>> containerContents = [
+  //   {
+  //     'title': 'Certificate 1',
+  //     'description':
+  //         'Earn an industry standard certificate upon completion of this class 1.',
+  //     'imagePath': 'assets/Gcerti.png',
+  //   },
+  //   {
+  //     'title': 'Certificate 2',
+  //     'description':
+  //         'Earn an industry standard certificate upon completion of this class 2.',
+  //     'imagePath': 'assets/Right.png',
+  //   },
+  //   {
+  //     'title': 'Certificate 3',
+  //     'description':
+  //         'Earn an industry standard certificate upon completion of this class 3.',
+  //     'imagePath': 'assets/Left.png',
+  //   },
+  // ];
+  // List<Map<String, String>> containerContents2 = [
+  //   {
+  //     'title': 'Certificate 1',
+  //     'description':
+  //         'Earn an industry standard certificate upon completion of this class 1.',
+  //     'imagePath': 'assets/Gcerti.png',
+  //   },
+  //   {
+  //     'title': 'Certificate 2',
+  //     'description':
+  //         'Earn an industry standard certificate upon completion of this class 2.',
+  //     'imagePath': 'assets/certiCode.png',
+  //   },
+  //   {
+  //     'title': 'Certificate 3',
+  //     'description':
+  //         'Earn an industry standard certificate upon completion of this class 3.',
+  //     'imagePath': 'assets/Left.png',
+  //   },
+  // ];
+
   @override
   Widget build(BuildContext context) {
+    dynamic myData = widget.dataKelas;
     return Scaffold(
       body: ListView(
         shrinkWrap: true,
@@ -85,7 +108,7 @@ class _HomepageState extends State<Paid> {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        'Java Aplication',
+                        myData['title'],
                         style: GoogleFonts.quicksand(
                           textStyle: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -100,7 +123,7 @@ class _HomepageState extends State<Paid> {
               ]),
               Container(
                 child: Image.asset(
-                  'assets/java.png',
+                  '${myData['logo']}',
                   width: 170,
                   height: 170,
                 ),
@@ -194,13 +217,12 @@ class _HomepageState extends State<Paid> {
               Container(
                 height: 200,
                 child: CarouselSlider.builder(
-                  itemCount: containerContents.length,
+                  itemCount: myData.length,
                   itemBuilder:
                       (BuildContext context, int index, int realIndex) {
-                    String title = containerContents[index]['title']!;
-                    String description =
-                        containerContents[index]['description']!;
-                    String imagePath = containerContents[index]['imagePath']!;
+                    String title = myData['title']!;
+                    String description = myData['description']!;
+                    String imagePath = myData['logo']!;
 
                     return Container(
                       width: MediaQuery.of(context).size.width * 0.8,
@@ -277,13 +299,12 @@ class _HomepageState extends State<Paid> {
               Container(
                 height: 200,
                 child: CarouselSlider.builder(
-                  itemCount: containerContents2.length,
+                  itemCount: myData.length,
                   itemBuilder:
                       (BuildContext context, int index, int realIndex) {
-                    String title = containerContents2[index]['title']!;
-                    String description =
-                        containerContents2[index]['description']!;
-                    String imagePath = containerContents2[index]['imagePath']!;
+                    String title = myData['title']!;
+                    String description = myData['description']!;
+                    String imagePath = myData['logo']!;
 
                     return Container(
                       width: MediaQuery.of(context).size.width * 0.8,
@@ -358,6 +379,8 @@ class _HomepageState extends State<Paid> {
   }
 
   Widget builRegistration() {
+    dynamic myData = widget.dataKelas;
+    dynamic myData_user_id = widget.user_id;
     return Padding(
       padding:
           const EdgeInsets.only(top: 8.0, right: 13, bottom: 8.0, left: 13),
@@ -389,7 +412,7 @@ class _HomepageState extends State<Paid> {
                         Row(
                           children: [
                             RatingBar.builder(
-                              initialRating: _rating,
+                              initialRating: myData['rate'],
                               minRating: 1,
                               direction: Axis.horizontal,
                               allowHalfRating: true,
@@ -403,12 +426,12 @@ class _HomepageState extends State<Paid> {
                               ),
                               onRatingUpdate: (rating) {
                                 setState(() {
-                                  _rating = rating;
+                                  myData['rate'] = rating;
                                 });
                               },
                             ),
                             Text(
-                              '$_rating',
+                              '${myData['rate']}',
                               style: TextStyle(
                                 fontSize: 23,
                                 color: const Color.fromARGB(255, 79, 78, 78),
@@ -596,17 +619,17 @@ class _HomepageState extends State<Paid> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text('Class'),
-                                    Text('HTML Fundamental'),
+                                    Text(myData['title']),
                                     SizedBox(
                                       height: 8,
                                     ),
-                                    Text('Category'),
-                                    Text('HTML'),
+                                    Text('Level'),
+                                    Text(myData['level']),
                                     SizedBox(
                                       height: 8,
                                     ),
                                     Text('Total'),
-                                    Text('Rp.99.000'),
+                                    Text('Rp.${myData['price'].toString()}'),
                                     SizedBox(
                                       height: 10,
                                     )
@@ -615,11 +638,22 @@ class _HomepageState extends State<Paid> {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
+                                      registerNow(
+                                        myData['title'],
+                                        myData['description'],
+                                        myData['logo'],
+                                        myData['level'],
+                                        myData['registered'],
+                                        myData['rate'],
+                                        myData['color'],
+                                        myData['uid'],
+                                        myData_user_id,
+                                      );
                                       Navigator.of(context).pop();
                                       showDialog(
                                           context: context,
                                           builder: (BuildContext) {
-                                            return CustomDialog2();
+                                            return CustomDialog2(context);
                                           });
                                     },
                                     child: Padding(
@@ -687,166 +721,191 @@ class _HomepageState extends State<Paid> {
     );
   }
 
-  Widget buildFeedback(Recommendation recommendation) {
-    return Padding(
-      padding:
-          const EdgeInsets.only(top: 8.0, right: 13, bottom: 8.0, left: 13),
-      child: Container(
-        width: double.infinity,
-        height: 100,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromARGB(255, 117, 116, 116).withOpacity(0.5),
-              spreadRadius: 4,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              child: Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          recommendation.level +
-                              '. ' +
-                              recommendation.registered,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        SizedBox(height: 3),
-                        Row(
-                          children: [
-                            RatingBar.builder(
-                              initialRating: _rating,
-                              minRating: 1,
-                              direction: Axis.horizontal,
-                              allowHalfRating: true,
-                              itemCount: 1,
-                              itemSize: 25,
-                              itemPadding:
-                                  EdgeInsets.symmetric(horizontal: 4.0),
-                              itemBuilder: (context, _) => Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                              ),
-                              onRatingUpdate: (rating) {
-                                setState(() {
-                                  _rating = rating;
-                                });
-                              },
-                            ),
-                            Text(
-                              '$_rating',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void registerNow(
+      String title,
+      String description,
+      String logo,
+      String level,
+      int registered,
+      double rate,
+      String color,
+      String id_kelas,
+      String id_user) {
+    _databaseTransaction.push().set({
+      'title': title,
+      'description': description,
+      'logo': logo,
+      'level': level,
+      'registered': registered,
+      'rate': rate,
+      'color': color,
+      'id_kelas': id_kelas,
+      'uid': id_user
+      // 'uid': _database.push().key as String
+    });
   }
+
+  // Widget buildFeedback(Recommendation recommendation) {
+  //   dynamic myData = widget.dataKelas;
+  //   return Padding(
+  //     padding:
+  //         const EdgeInsets.only(top: 8.0, right: 13, bottom: 8.0, left: 13),
+  //     child: Container(
+  //       width: double.infinity,
+  //       height: 100,
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(10),
+  //         color: Colors.white,
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: Color.fromARGB(255, 117, 116, 116).withOpacity(0.5),
+  //             spreadRadius: 4,
+  //             blurRadius: 5,
+  //             offset: Offset(0, 3),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Row(
+  //         children: [
+  //           Container(
+  //             child: Row(
+  //               children: <Widget>[
+  //                 Padding(
+  //                   padding: const EdgeInsets.all(8.0),
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       Text(
+  //                         recommendation.level +
+  //                             '. ' +
+  //                             recommendation.registered,
+  //                         style: TextStyle(color: Colors.grey),
+  //                       ),
+  //                       SizedBox(height: 3),
+  //                       Row(
+  //                         children: [
+  //                           RatingBar.builder(
+  //                             initialRating: _rating,
+  //                             minRating: 1,
+  //                             direction: Axis.horizontal,
+  //                             allowHalfRating: true,
+  //                             itemCount: 1,
+  //                             itemSize: 25,
+  //                             itemPadding:
+  //                                 EdgeInsets.symmetric(horizontal: 4.0),
+  //                             itemBuilder: (context, _) => Icon(
+  //                               Icons.star,
+  //                               color: Colors.amber,
+  //                             ),
+  //                             onRatingUpdate: (rating) {
+  //                               setState(() {
+  //                                 _rating = rating;
+  //                               });
+  //                             },
+  //                           ),
+  //                           Text(
+  //                             '$_rating',
+  //                             style: TextStyle(
+  //                                 fontSize: 14,
+  //                                 color: Colors.grey,
+  //                                 fontWeight: FontWeight.bold),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }
 
-class CustomDialog2 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      contentPadding: EdgeInsets.fromLTRB(
-          16.0, 16.0, 16.0, 0.0), // Ubah padding konten dialog
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Ubah radius border dialog
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            'Payment Success',
-            style: GoogleFonts.quicksand(
-              textStyle: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 33, 32, 32),
-              ),
+// class CustomDialog2 extends StatelessWidget {
+//   @override
+Widget CustomDialog2(BuildContext context) {
+  return AlertDialog(
+    contentPadding: EdgeInsets.fromLTRB(
+        16.0, 16.0, 16.0, 0.0), // Ubah padding konten dialog
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15), // Ubah radius border dialog
+    ),
+    title: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          'Payment Success',
+          style: GoogleFonts.quicksand(
+            textStyle: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 33, 32, 32),
             ),
           ),
-          Image.asset('assets/centang.png')
-        ],
-      ),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Thanks for your register',
-            style: GoogleFonts.quicksand(
-              textStyle: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 33, 32, 32),
-              ),
+        ),
+        Image.asset('assets/centang.png')
+      ],
+    ),
+    content: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'Thanks for your register',
+          style: GoogleFonts.quicksand(
+            textStyle: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 33, 32, 32),
             ),
           ),
-          SizedBox(
-            height: 10,
-          )
-        ],
-      ),
-      actions: [
-        TextButton(
-          // onPressed: () {
-          //   Navigator.of(context).pop();
-          // },
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PageClass()),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 15),
-            child: Container(
-              width: double.infinity,
-              height: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Color.fromARGB(255, 55, 53, 53),
-              ),
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'Course Now',
-                  style: GoogleFonts.quicksand(
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 191, 188, 188),
-                    ),
+        ),
+        SizedBox(
+          height: 10,
+        )
+      ],
+    ),
+    actions: [
+      TextButton(
+        // onPressed: () {
+        //   Navigator.of(context).pop();
+        // },
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PageClass()),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 15),
+          child: Container(
+            width: double.infinity,
+            height: 30,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Color.fromARGB(255, 55, 53, 53),
+            ),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                'Course Now',
+                style: GoogleFonts.quicksand(
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 191, 188, 188),
                   ),
                 ),
               ),
             ),
           ),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }
+// }

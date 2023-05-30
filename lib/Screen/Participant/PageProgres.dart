@@ -1,48 +1,165 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'PagesClass.dart';
-import 'ChartPage.dart';
-import 'PageOtp.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class Progres extends StatefulWidget {
-  const Progres({Key? key}) : super(key: key);
+  final dynamic name;
+  final dynamic uid;
+
+  const Progres({required this.name, required this.uid});
 
   @override
-  _HomepageState createState() => _HomepageState();
+  _ProgresPageState createState() => _ProgresPageState();
 }
 
-class _HomepageState extends State<Progres> {
-  double _rating = 3.0;
+class _ProgresPageState extends State<Progres> {
+  DatabaseReference _database =
+      FirebaseDatabase.instance.reference().child('Transaction');
+  late List<dynamic> _items;
 
-  List<Recommendation> recommendations = [
-    Recommendation(
-      image: 'assets/java.png',
-      title: 'Java Application',
-      level: 'Level Beginner',
-      registered: '13.252 Registered',
-      price: 'Rp. 99.000',
-      trash: 'assets/Trash.png',
-      icright: 'assets/icon _right.png',
-    ),
-    Recommendation(
-      image: 'assets/c.png',
-      title: 'C Fundamental',
-      level: 'Level Intermediate',
-      registered: '9.876 Registered',
-      price: 'Rp. 99.000',
-      trash: 'assets/Trash.png',
-      icright: 'assets/icon _right.png',
-    ),
-    Recommendation(
-      image: 'assets/js.png',
-      title: 'JavaScript Project',
-      level: 'Level Advanced',
-      registered: '7.543 Registered',
-      price: 'Rp. 99.000',
-      trash: 'assets/Trash.png',
-      icright: 'assets/icon _right.png',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _items = [];
+    _database = FirebaseDatabase.instance.reference().child('Transaction');
+
+    _database
+        .orderByChild('uid')
+        .equalTo(widget.uid)
+        .once()
+        .then((DatabaseEvent event) {
+      if (event.snapshot.value != null) {
+        setState(() {
+          // Retrieve the text data and convert it to a list of strings
+          Map<dynamic, dynamic>? dataMap =
+              event.snapshot?.value as Map<dynamic, dynamic>?;
+
+          _items = dataMap?.values.toList() ?? [];
+        });
+      }
+    });
+  }
+
+  // void getDataByUid(String uid) {
+  //   _database
+  //       .orderByChild('uid')
+  //       .equalTo(uid)
+  //       .once()
+  //       .then((DatabaseEvent event) {
+  //     if (event.snapshot.value != null) {
+  //       setState(() {
+  //         _items = event.snapshot?.value as List<dynamic>;
+  //       });
+  //     } else {
+  //       // No transactions found with the specified uid
+  //       print('No transactions found for uid: $uid');
+  //     }
+  //   }).catchError((error) {
+  //     print('Error: $error');
+  //   });
+  // }
+
+  // void getDataByUid(String uid) {
+  //   _database
+  //       .orderByChild('uid')
+  //       .equalTo(uid)
+  //       .once()
+  //       .then((DatabaseEvent event) {
+  //     if (event.snapshot.value != null) {
+  //       Map<dynamic, dynamic>? transactions = event.snapshot?.value as Map<dynamic, dynamic>?;
+  //       transactions!.forEach((key, value) {
+  //         // Access the transaction objects here
+  //         print('Key: $key');
+  //         print('Transaction: $value');
+  //       });
+  //     } else {
+  //       // No transactions found with the specified uid
+  //       print('No transactions found for uid: $uid');
+  //     }
+  //   } as FutureOr Function(DatabaseEvent value)).catchError((error) {
+  //     print('Error: $error');
+  //   });
+  // }
+
+  // void fetchData() {
+  //   DatabaseReference transactionRef =
+  //       FirebaseDatabase.instance.reference().child('Transaction');
+  //   DatabaseReference classesRef =
+  //       FirebaseDatabase.instance.reference().child('classes');
+
+  //   transactionRef.once().then((DataSnapshot transactionSnapshot) {
+  //         if (transactionSnapshot.value != null) {
+  //           Map<dynamic, dynamic> transactionData =
+  //               transactionSnapshot.value as Map<dynamic, dynamic>;
+  //           transactionData.forEach((transactionKey, transactionValue) {
+  //             String uid = transactionValue['id_kelas'];
+
+  //             classesRef.child(uid).once().then((DataSnapshot classesSnapshot) {
+  //                   if (classesSnapshot.value != null) {
+  //                     Map<dynamic, dynamic> classesData =
+  //                         classesSnapshot.value as Map<dynamic, dynamic>;
+  //                     String title = classesData['title'];
+  //                     String description = classesData['description'];
+  //                     String logo = classesData['logo'];
+  //                     String level = classesData['level'];
+  //                     int registered = classesData['registered'];
+  //                     double rate = classesData['rate'];
+  //                     String color = classesData['color'];
+  //                     String uid = classesData['uid'];
+
+  //                     // Add the data to the list
+  //                     _items.add({
+  //                       'title': title,
+  //                       'description': description,
+  //                       'logo': logo,
+  //                       'level': level,
+  //                       'registered': registered,
+  //                       'rate': rate,
+  //                       'color': color,
+  //                       'uid': uid,
+  //                     } as dynamic);
+  //                   }
+  //                 } as FutureOr Function(DatabaseEvent value));
+  //           });
+  //         }
+  //       } as FutureOr Function(DatabaseEvent value));
+  // }
+
+  // double _rating = 3.0;
+
+  // List<Recommendation> recommendations = [
+  //   Recommendation(
+  //     image: 'assets/java.png',
+  //     title: 'Java Application',
+  //     level: 'Level Beginner',
+  //     registered: '13.252 Registered',
+  //     price: 'Rp. 99.000',
+  //     trash: 'assets/Trash.png',
+  //     icright: 'assets/icon _right.png',
+  //   ),
+  //   Recommendation(
+  //     image: 'assets/c.png',
+  //     title: 'C Fundamental',
+  //     level: 'Level Intermediate',
+  //     registered: '9.876 Registered',
+  //     price: 'Rp. 99.000',
+  //     trash: 'assets/Trash.png',
+  //     icright: 'assets/icon _right.png',
+  //   ),
+  //   Recommendation(
+  //     image: 'assets/js.png',
+  //     title: 'JavaScript Project',
+  //     level: 'Level Advanced',
+  //     registered: '7.543 Registered',
+  //     price: 'Rp. 99.000',
+  //     trash: 'assets/Trash.png',
+  //     icright: 'assets/icon _right.png',
+  //   ),
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -86,33 +203,33 @@ class _HomepageState extends State<Progres> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: recommendations.length,
+                itemCount: _items.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return InkWell(
+                  return GestureDetector(
                     onTap: () {
                       // Navigasi ke halaman yang diinginkan sesuai dengan indeks item
-                      if (index == 0) {
-                        // Navigasi ke halaman Profile
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => PageClass()),
-                        );
-                      } else if (index == 1) {
-                        // Navigasi ke halaman Akun
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ChartPage()),
-                        );
-                      } else if (index == 2) {
-                        // Navigasi ke halaman Ubah Password
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => OtpPage()),
-                        );
-                      }
+                      // if (_items[index] == 0) {
+                      // Navigasi ke halaman Profile
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PageClass()),
+                      );
+                      // } else if (_items[index] == 1) {
+                      //   // Navigasi ke halaman Akun
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(builder: (context) => ChartPage()),
+                      //   );
+                      // } else if (_items[index] == 2) {
+                      //   // Navigasi ke halaman Ubah Password
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(builder: (context) => OtpPage()),
+                      //   );
+                      // }
                       // Tambahkan penanganan navigasi untuk item lainnya sesuai kebutuhan
                     },
-                    child: buildRecommendationItem(recommendations[index]),
+                    child: buildRecommendationItem(_items[index]),
                   );
                 },
               ),
@@ -123,7 +240,7 @@ class _HomepageState extends State<Progres> {
     );
   }
 
-  Widget buildRecommendationItem(Recommendation recommendation) {
+  Widget buildRecommendationItem(dynamic data) {
     return Padding(
       padding:
           const EdgeInsets.only(top: 8.0, right: 13, bottom: 8.0, left: 13),
@@ -149,11 +266,7 @@ class _HomepageState extends State<Progres> {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(4.0),
-                    child: Image.asset(
-                      recommendation.image,
-                      width: 100,
-                      height: 100,
-                    ),
+                    child: Image.asset('${data['logo']}'),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -161,22 +274,22 @@ class _HomepageState extends State<Progres> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          recommendation.title,
+                          data['title'],
                           style: TextStyle(
                               fontSize: 21, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 5),
                         Text(
-                          recommendation.level +
-                              '. ' +
-                              recommendation.registered,
+                          'Level: ${data['level']}' +
+                              " . " +
+                              '${data['registered'].toString()} registered',
                           style: TextStyle(color: Colors.grey),
                         ),
                         SizedBox(height: 3),
                         Row(
                           children: [
                             RatingBar.builder(
-                              initialRating: _rating,
+                              initialRating: data['rate'],
                               minRating: 1,
                               direction: Axis.horizontal,
                               allowHalfRating: true,
@@ -190,12 +303,12 @@ class _HomepageState extends State<Progres> {
                               ),
                               onRatingUpdate: (rating) {
                                 setState(() {
-                                  _rating = rating;
+                                  data['rate'] = rating;
                                 });
                               },
                             ),
                             Text(
-                              '$_rating',
+                              '${data['rate']}',
                               style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
@@ -219,7 +332,7 @@ class _HomepageState extends State<Progres> {
                         padding: EdgeInsets.only(right: 20),
                         alignment: Alignment.centerRight,
                         child: Image.asset(
-                          recommendation.icright,
+                          'assets/icon _right.png',
                           height: 100,
                         )),
                   ),
