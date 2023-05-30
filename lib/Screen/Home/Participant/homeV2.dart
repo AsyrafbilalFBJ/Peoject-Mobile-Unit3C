@@ -2,68 +2,119 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../Participant/ChartPage.dart';
 import '../../Participant/Pembayaran.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 class Homepage extends StatefulWidget {
-  const Homepage({Key? key}) : super(key: key);
+  final dynamic name;
+  final dynamic uid;
+
+  const Homepage({this.name, this.uid});
+  // const Homepage({Key? key}) : super(key: key);
 
   @override
   _HomepageState createState() => _HomepageState();
 }
 
 class _HomepageState extends State<Homepage> {
-  double _rating = 1.0;
+  DatabaseReference _database =
+      FirebaseDatabase.instance.reference().child('classes');
 
-  List<Recommendation> recommendations = [
-    Recommendation(
-      image: 'assets/java.png',
-      title: 'Java Application',
-      level: 'Level Beginner',
-      registered: '13.252 Registered',
-    ),
-    Recommendation(
-      image: 'assets/c.png',
-      title: 'C Fundamental',
-      level: 'Level Intermediate',
-      registered: '9.876 Registered',
-    ),
-    Recommendation(
-      image: 'assets/go.png',
-      title: 'Golang Project',
-      level: 'Level Advanced',
-      registered: '7.543 Registered',
-    ),
-    Recommendation(
-      image: 'assets/c.png',
-      title: 'C Fundamental',
-      level: 'Level Intermediate',
-      registered: '9.876 Registered',
-    ),
-    Recommendation(
-      image: 'assets/go.png',
-      title: 'Golang Project',
-      level: 'Level Advanced',
-      registered: '7.543 Registered',
-    ),
-  ];
+  late List<dynamic> dataList;
+  // late List<dynamic> filteredList;
 
-  List<CarouselItem> carouselItems = [
-    CarouselItem(
-      image: 'assets/icHtml.png',
-      title: 'HTML ',
-      description:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.asgfergesrfg',
-      level: 'Level Beginner',
-      registered: '13.252 Registered',
-      price: 'Rp. 99.000',
-      containerColor: const Color.fromARGB(255, 222, 174, 100),
-    ),
-    // Add more CarouselItem objects here
-  ];
+  @override
+  void initState() {
+    super.initState();
+    dataList = [];
+    _database = FirebaseDatabase.instance.reference().child('classes');
+
+    _database.onValue.listen((DatabaseEvent event) {
+      if (event.snapshot.value != null) {
+        setState(() {
+          // Retrieve the text data and convert it to a list of strings
+          Map<dynamic, dynamic>? dataMap =
+              event.snapshot?.value as Map<dynamic, dynamic>?;
+
+          dataList = dataMap?.values.toList() ?? [];
+        });
+      }
+    });
+  }
+
+  Color _getColorFromName(String colorName) {
+    switch (colorName) {
+      case 'blue':
+        return Colors.blue;
+      case 'red':
+        return Colors.purple;
+      case 'orange':
+        return Colors.orange;
+      case 'purple':
+        return Colors.purple;
+      case 'blueGrey':
+        return Colors.blueGrey;
+      // Add more cases for other color names as needed
+      default:
+        return Colors.black;
+    }
+  }
+
+  // double _rating = 1.0;
+
+  // List<Recommendation> recommendations = [
+  //   Recommendation(
+  //     image: 'assets/java.png',
+  //     title: 'Java Application',
+  //     level: 'Level Beginner',
+  //     registered: '13.252 Registered',
+  //   ),
+  //   Recommendation(
+  //     image: 'assets/c.png',
+  //     title: 'C Fundamental',
+  //     level: 'Level Intermediate',
+  //     registered: '9.876 Registered',
+  //   ),
+  //   Recommendation(
+  //     image: 'assets/go.png',
+  //     title: 'Golang Project',
+  //     level: 'Level Advanced',
+  //     registered: '7.543 Registered',
+  //   ),
+  //   Recommendation(
+  //     image: 'assets/c.png',
+  //     title: 'C Fundamental',
+  //     level: 'Level Intermediate',
+  //     registered: '9.876 Registered',
+  //   ),
+  //   Recommendation(
+  //     image: 'assets/go.png',
+  //     title: 'Golang Project',
+  //     level: 'Level Advanced',
+  //     registered: '7.543 Registered',
+  //   ),
+  // ];
+
+  // List<CarouselItem> carouselItems = [
+  //   CarouselItem(
+  //     image: 'assets/icHtml.png',
+  //     title: 'HTML ',
+  //     description:
+  //         'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.asgfergesrfg',
+  //     level: 'Level Beginner',
+  //     registered: '13.252 Registered',
+  //     price: 'Rp. 99.000',
+  //     containerColor: const Color.fromARGB(255, 222, 174, 100),
+  //   ),
+  //   // Add more CarouselItem objects here
+  // ];
 
   @override
   Widget build(BuildContext context) {
+    dynamic myData = widget.name;
+    dynamic myData_uid = widget.uid;
     return Scaffold(
       body: ListView(
         children: [
@@ -81,7 +132,7 @@ class _HomepageState extends State<Homepage> {
                 padding: EdgeInsets.only(left: 20),
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'John Doe',
+                  myData,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
               ),
@@ -111,25 +162,25 @@ class _HomepageState extends State<Homepage> {
               SizedBox(height: 20),
               Container(
                 child: CarouselSlider.builder(
-                  itemCount: carouselItems.length,
+                  itemCount: dataList.length,
                   itemBuilder: (context, index, _) {
                     return Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: InkWell(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Homepage(),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => Homepage(),
+                          //   ),
+                          // );
                         },
                         child: Container(
                           width: 700,
                           height: 300,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: carouselItems[index].containerColor,
+                            color: _getColorFromName(dataList[index]['color']),
                             boxShadow: [
                               BoxShadow(
                                 color: Color.fromARGB(255, 117, 116, 116)
@@ -143,7 +194,7 @@ class _HomepageState extends State<Homepage> {
                           child: Row(
                             children: [
                               Image.asset(
-                                carouselItems[index].image,
+                                dataList[index]['logo'],
                                 width: 172,
                                 height: 202,
                               ),
@@ -157,7 +208,7 @@ class _HomepageState extends State<Homepage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        carouselItems[index].title,
+                                        dataList[index]['title'],
                                         style: GoogleFonts.quicksand(
                                           textStyle: TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -169,7 +220,7 @@ class _HomepageState extends State<Homepage> {
                                       SizedBox(height: 5),
                                       Flexible(
                                         child: Text(
-                                          carouselItems[index].description,
+                                          dataList[index]['description'],
                                           style: GoogleFonts.quicksand(
                                             textStyle: TextStyle(
                                               fontSize: 10,
@@ -182,7 +233,9 @@ class _HomepageState extends State<Homepage> {
                                       ),
                                       SizedBox(height: 10),
                                       Text(
-                                        '${carouselItems[index].level} . ${carouselItems[index].registered}',
+                                        'Level: ${dataList[index]['level']}' +
+                                            " . " +
+                                            '${dataList[index]['registered'].toString()} registered',
                                         style: GoogleFonts.quicksand(
                                           textStyle: TextStyle(
                                             fontSize: 10,
@@ -194,7 +247,8 @@ class _HomepageState extends State<Homepage> {
                                       Row(
                                         children: [
                                           RatingBar.builder(
-                                            initialRating: _rating,
+                                            initialRating: dataList[index]
+                                                ['rate'],
                                             minRating: 1,
                                             direction: Axis.horizontal,
                                             allowHalfRating: true,
@@ -209,12 +263,13 @@ class _HomepageState extends State<Homepage> {
                                             ),
                                             onRatingUpdate: (rating) {
                                               setState(() {
-                                                _rating = rating;
+                                                dataList[index]['rate'] =
+                                                    rating;
                                               });
                                             },
                                           ),
                                           Text(
-                                            '$_rating',
+                                            '${dataList[index]['rate'].toString()}',
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: const Color.fromARGB(
@@ -230,7 +285,7 @@ class _HomepageState extends State<Homepage> {
                                           padding: EdgeInsets.only(
                                               bottom: 10, right: 10),
                                           child: Text(
-                                            carouselItems[index].price,
+                                            '${dataList[index]['price'].toString()}',
                                             style: GoogleFonts.quicksand(
                                               textStyle: TextStyle(
                                                 fontSize: 10,
@@ -274,27 +329,34 @@ class _HomepageState extends State<Homepage> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: recommendations.length,
+                itemCount: dataList.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Paid(
+                              dataKelas: dataList[index], user_id: myData_uid),
+                        ),
+                      );
                       // Navigasi ke halaman yang diinginkan sesuai dengan indeks item
-                      if (index == 0) {
-                        // Navigasi ke halaman Profile
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Paid()),
-                        );
-                      } else if (index == 1) {
-                        // Navigasi ke halaman Akun
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ChartPage()),
-                        );
-                      }
+                      // if (index == 0) {
+                      //   // Navigasi ke halaman Profile
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(builder: (context) => Paid()),
+                      //   );
+                      // } else if (index == 1) {
+                      //   // Navigasi ke halaman Akun
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(builder: (context) => ChartPage()),
+                      //   );
+                      // }
                       // Tambahkan penanganan navigasi untuk item lainnya sesuai kebutuhan
                     },
-                    child: buildRecommendationItem(recommendations[index]),
+                    child: buildRecommendationItem(dataList[index]),
                   );
                 },
               ),
@@ -305,7 +367,7 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  Widget buildRecommendationItem(Recommendation recommendation) {
+  Widget buildRecommendationItem(dynamic dataKelas) {
     return Padding(
       padding:
           const EdgeInsets.only(top: 8.0, right: 13, bottom: 8.0, left: 13),
@@ -328,7 +390,7 @@ class _HomepageState extends State<Homepage> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Image.asset(recommendation.image),
+              child: Image.asset('${dataKelas['logo']}'),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -336,19 +398,21 @@ class _HomepageState extends State<Homepage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    recommendation.title,
+                    dataKelas['title'],
                     style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 5),
                   Text(
-                    recommendation.level + '. ' + recommendation.registered,
+                    'Level: ${dataKelas['level']}' +
+                        " . " +
+                        '${dataKelas['registered'].toString()} registered',
                     style: TextStyle(color: Colors.grey),
                   ),
                   SizedBox(height: 3),
                   Row(
                     children: [
                       RatingBar.builder(
-                        initialRating: _rating,
+                        initialRating: dataKelas['rate'],
                         minRating: 1,
                         direction: Axis.horizontal,
                         allowHalfRating: true,
@@ -361,12 +425,12 @@ class _HomepageState extends State<Homepage> {
                         ),
                         onRatingUpdate: (rating) {
                           setState(() {
-                            _rating = rating;
+                            dataKelas['rate'] = rating;
                           });
                         },
                       ),
                       Text(
-                        '$_rating',
+                        '${dataKelas['rate'].toString()}',
                         style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey,

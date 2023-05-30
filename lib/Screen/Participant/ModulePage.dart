@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'Forum1.dart';
 import 'PageQuiz1.dart';
 // import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -197,10 +196,7 @@ class _ModulState extends State<Modul> {
                     child: Align(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Forum1()),
-                          );
+                          // Fungsi yang akan dijalankan saat container "Start" di klik
                         },
                         child: Padding(
                           padding: const EdgeInsets.only(
